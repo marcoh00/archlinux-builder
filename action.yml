@@ -1,13 +1,13 @@
 # action.yml
 name: 'Arch Linux Builder Action'
-description: 'Build packages and more'
+description: 'Arch Linux build environment that supports execution of custom scripts as well as building AUR packages, repository management and signing'
 inputs:
   action:
-    description: 'What to build. Valid options: build-package, build-repo, build-aur, run-custom'
+    description: 'The action to perform: build-package, build-repo, build-aur, exec'
     required: true
     default: 'build-package'
   target:
-    description: 'Target to build. For `build-package`, this is a directory containing a `PKGBUILD`, for `build-aur` these are package names to be fetched from AUR, for `build-repo`, this is a directory containing package files, for `run-custom`, this is a path to a custom build script.'
+    description: 'Target to build. For `build-package`, this is a directory containing a `PKGBUILD`, for `build-aur` these are package names to be fetched from AUR (passed to `paru`), for `build-repo`, this is a directory containing package files, for `exec`, these are arguments for an exec call.'
     required: true
     default: '.'
   artifacts:
@@ -15,7 +15,7 @@ inputs:
     required: true
     default: 'output'
   packager:
-    description: 'For build-package: Specify the packager name'
+    description: 'For `build-package`: Specify the packager name'
     required: false
     default: "GitHub Actions Packager"
   gpgsign:
@@ -23,7 +23,7 @@ inputs:
     required: false
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/archlinux-ostree-experiments/builder:latest'
+  image: 'docker://ghcr.io/archlinux-ostree-experiments/builder:v1'
   args:
     - ${{ inputs.action }}
     - ${{ inputs.target }}

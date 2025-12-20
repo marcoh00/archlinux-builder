@@ -1,17 +1,15 @@
 FROM docker.io/library/archlinux:latest AS aurbuilder
 
+ARG INCLUDE_AUR_PACKAGES=""
+
 RUN <<EOR
 set -euxo pipefail
 
 pacman -Sy
-pacman -S --noconfirm base-devel git sudo
+pacman -S --noconfirm base-devel git sudo cargo
 useradd -m builder
-EOR
 
-RUN --mount=type=cache,id=pkg,target=/pkg <<EOR
-set -euxo pipefail
-
-pacman --noconfirm -S cargo
+mkdir /pkg
 
 # Install paru as an AUR helper
 mkdir /build
@@ -25,30 +23,36 @@ mv *.pkg.tar.zst /pkg
 popd
 rm -rf paru
 
-# Something needs to reference the previous image, this is it
-sha256sum /pkg/*.pkg.tar.zst > created
+# Set up environment to build additional packages and build them (if any are given)
+if [ "x${INCLUDE_AUR_PACKAGES}" != "x" ]; then
+    echo "builder ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-allow-builder
+
+    pacman -U --noconfirm /pkg/paru*.pkg.tar.zst
+    sudo -u builder paru --noconfirm --skipreview -Sa "${INCLUDE_AUR_PACKAGES}"
+    find /home/builder/.cache/paru -name "*.pkg.tar.*" -exec mv {} /pkg \;
+fi
+
+rm -f /pkg/*-debug-*.pkg.tar.*
 EOR
 
 
 FROM docker.io/library/archlinux:latest
 
-# Reference previous image such that `podman build` will not skip building paru
-COPY --from=aurbuilder /build/created /created
+ARG NODEJS_PACKAGE="nodejs-lts-krypton"
+ARG ADDITIONAL_PACKAGES=""
 
 # Install useful packages for running as a GH Action
-RUN --mount=type=cache,id=pkg,target=/pkg <<EOR
+RUN --mount=type=bind,from=aurbuilder,source=/pkg,target=/pkg,ro <<EOR
 set -euxo pipefail
-
-rm -f /created
 
 pacman -Sy
 pacman -S --noconfirm \
-    base base-devel sudo \
-    nodejs-lts-jod npm yarn \
+    base base-devel sudo make just \
+    "${NODEJS_PACKAGE}" npm yarn \
     podman buildah skopeo fuse-overlayfs \
-    less git ostree sbsigntools
+    less git ostree sbsigntools ${ADDITIONAL_PACKAGES}
 
-pacman --noconfirm -U /pkg/*.pkg.tar.zst
+pacman --noconfirm -U /pkg/*.pkg.tar.*
 
 # Add builder user with sudo permissions
 useradd -m builder

@@ -104,7 +104,7 @@ if [ "x$ACTION" = "xbuild-repo" ]; then
   exit 0
 fi
 
-if [ "x$ACTION" = "xrun-custom" ]; then
+if [ "x$ACTION" = "xexec" ]; then
   exec $TARGET
 fi
 
