@@ -17,13 +17,13 @@ inputs:
   packager:
     description: 'For `build-package`: Specify the packager name'
     required: false
-    default: "GitHub Actions Packager"
+    default: "GitHub Actions Packager <github@example.com>"
   gpgsign:
     description: 'GPG Key to use for signing packages or repository files'
     required: false
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/archlinux-ostree-experiments/builder:v1'
+  image: 'docker://ghcr.io/marcoh00/archlinux-builder:latest'
   args:
     - ${{ inputs.action }}
     - ${{ inputs.target }}

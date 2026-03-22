@@ -5,7 +5,7 @@ set -euxo pipefail
 ACTION="${1:-build-package}"
 TARGET="${2:-.}"
 ARTIFACTS="${3:-output}"
-PACKAGER="${5:-GitHub Actions Packager}"
+PACKAGER="${5:-GitHub Actions Packager <github@example.com>}"
 
 ROOT="$(pwd)"
 FULL_ARTIFACTS="$ROOT/$ARTIFACTS"
