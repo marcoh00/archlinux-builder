@@ -5,7 +5,7 @@ ARG INCLUDE_AUR_PACKAGES=""
 RUN <<EOR
 set -euxo pipefail
 
-pacman -Sy
+pacman -Syu --noconfirm
 pacman -S --noconfirm base-devel git sudo cargo
 useradd -m builder
 
@@ -47,7 +47,7 @@ set -euxo pipefail
 
 pacman -Sy
 pacman -S --noconfirm \
-    base base-devel sudo make just \
+    base base-devel sudo make just python python-pip \
     "${NODEJS_PACKAGE}" npm yarn \
     podman buildah skopeo fuse-overlayfs \
     less git ostree sbsigntools ${ADDITIONAL_PACKAGES}
