@@ -47,7 +47,7 @@ set -euxo pipefail
 
 pacman -Sy
 pacman -S --noconfirm \
-    base base-devel sudo make just python python-pip \
+    base base-devel sudo make just python python-pip python-jinja \
     "${NODEJS_PACKAGE}" npm yarn \
     podman buildah skopeo fuse-overlayfs \
     less git ostree sbsigntools ${ADDITIONAL_PACKAGES}
