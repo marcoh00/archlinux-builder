@@ -46,8 +46,11 @@ RUN --mount=type=bind,from=aurbuilder,source=/pkg,target=/pkg,ro <<EOR
 set -euxo pipefail
 
 pacman -Sy
+
+# Contains fixes (python,...,boost-libs) for broken AUR PKGBUILDs that fail to specify their dependencies correctly
 pacman -S --noconfirm \
-    base base-devel sudo make just python python-pip python-jinja pipewire \
+    base base-devel sudo make just \
+    python python-pip python-jinja pipewire boost boost-libs \
     "${NODEJS_PACKAGE}" npm yarn \
     podman buildah skopeo fuse-overlayfs \
     less git ostree sbsigntools ${ADDITIONAL_PACKAGES}
