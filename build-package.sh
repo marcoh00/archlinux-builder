@@ -45,7 +45,7 @@ install_deps() {
 
 add_keys() {
     KEYS=$(makepkg --printsrcinfo | grep -E '\s+validpgpkeys' | sed 's/\s\+validpgpkeys = //g' || true)
-    if [ ! "z$KEYS" = "z" ]; then
+    if [ ! "$KEYS" = "" ]; then
         for key in $KEYS; do
             gpg --no-tty --recv-key "$key"
         done
@@ -53,14 +53,14 @@ add_keys() {
 }
 
 prepare_signing() {
-    if [ ! "x${GPGSIGN:-}" = "x" ]; then
+    if [ ! "${GPGSIGN:-}" = "" ]; then
         MAKEPKG_FLAGS="$MAKEPKG_FLAGS --sign --key $GPGSIGN"
     fi
 }
 
 build_package() {
     cd "$TARGET"
-    if [ "x$INSTALL_DEPS" = "xtrue" ]; then
+    if [ "$INSTALL_DEPS" = "true" ]; then
         install_deps
     fi
     add_keys
@@ -70,10 +70,10 @@ build_package() {
     # The PKGBUILD of `grub` will call git log which opens a pager
     # We don't want to require interactivity, so we set `GIT_PAGER` to `cat`.
     GIT_PAGER=cat PACKAGER="$PACKAGER" makepkg $MAKEPKG_FLAGS
-    if [ "x$INSTALL_BUILT_PKG" = "xtrue" ]; then
-        sudo pacman -U --noconfirm *.pkg.tar.zst
+    if [ "$INSTALL_BUILT_PKG" = "true" ]; then
+        sudo pacman -U --noconfirm ./*.pkg.tar.zst
     fi
-    mv -v *.pkg.tar.* "$FULL_ARTIFACTS"
+    mv -v ./*.pkg.tar.* "$FULL_ARTIFACTS"
     cd "$ROOT"
 }
 
